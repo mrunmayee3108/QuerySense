@@ -1,0 +1,9 @@
+{
+    "MAX_LEN": 64,
+    "SEQ_LEN": 63,
+    "vocab_size": 4829,
+    "EMBED_DIM": 128,
+    "NUM_HEADS": 4,
+    "FF_DIM": 256,
+    "BATCH_SIZE": 32
+}
