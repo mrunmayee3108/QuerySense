@@ -1,0 +1,5 @@
+streamlit
+streamlit-keyup
+tensorflow
+sqlglot
+numpy
