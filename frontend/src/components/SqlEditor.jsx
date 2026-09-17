@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Terminal, Check, Copy, Zap, ArrowRight, CornerDownLeft } from 'lucide-react';
+import { Terminal, Check, Copy, Trash2, Zap, ArrowRight, CornerDownLeft } from 'lucide-react';
 
 export default function SqlEditor({ caseMode, setCaseMode, topK, setTopK, onQueryChange }) {
   const [query, setQuery] = useState('select student_name ');
@@ -12,6 +12,14 @@ export default function SqlEditor({ caseMode, setCaseMode, topK, setTopK, onQuer
   const textareaRef = useRef(null);
   const overlayRef = useRef(null);
   const debounceTimerRef = useRef(null);
+
+  const handleClear = () => {
+    setQuery('');
+    setInlineGhost('');
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  };
 
   const handleScroll = () => {
     if (textareaRef.current && overlayRef.current) {
@@ -154,6 +162,15 @@ export default function SqlEditor({ caseMode, setCaseMode, topK, setTopK, onQuer
           >
             {copied ? <Check size={12} color="#10b981" /> : <Copy size={12} />}
             {copied ? 'Copied' : 'Copy'}
+          </button>
+          <button
+            onClick={handleClear}
+            className="preset-chip"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            title="Clear query (Ctrl+L)"
+          >
+            <Trash2 size={12} />
+            <span>Clear</span>
           </button>
         </div>
       </div>

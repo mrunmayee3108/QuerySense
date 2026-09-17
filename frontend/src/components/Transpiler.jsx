@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, ArrowRightLeft, Check, Copy, AlertCircle, HelpCircle } from 'lucide-react';
+import { Globe, ArrowRightLeft, Check, Copy, Trash2, AlertCircle, HelpCircle } from 'lucide-react';
 
 export default function Transpiler({ initialQuery }) {
   const [sourceQuery, setSourceQuery] = useState(initialQuery || 'select student_name from school_records where roll_no = 21');
@@ -148,6 +148,17 @@ export default function Transpiler({ initialQuery }) {
         <div className="transpiler-panel">
           <div className="panel-header">
             <span className="panel-title">Source Query</span>
+            {sourceQuery && (
+              <button
+                onClick={() => setSourceQuery('')}
+                className="preset-chip"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                title="Clear source query"
+              >
+                <Trash2 size={12} />
+                <span>Clear</span>
+              </button>
+            )}
           </div>
 
           <textarea
