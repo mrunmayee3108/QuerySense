@@ -153,7 +153,7 @@ pip install -r requirements.txt
    Open your browser at `http://127.0.0.1:5173`.
 
 ### 4. Alternative: Launch the Streamlit App
-If you prefer running the original Streamlit interface:
+If you prefer running the Streamlit interface:
 ```bash
 streamlit run app.py
 ```
