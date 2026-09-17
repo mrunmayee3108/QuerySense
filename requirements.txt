@@ -3,3 +3,5 @@ streamlit-keyup
 tensorflow
 sqlglot
 numpy
+fastapi
+uvicorn

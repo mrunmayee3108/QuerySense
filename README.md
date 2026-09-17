@@ -119,17 +119,31 @@ cd QuerySense
 pip install -r requirements.txt
 ```
 
-### 3. Launch the Web Studio
-Start the interactive Streamlit application:
+### 3. Launch the React + Vite Studio (Recommended)
 
+1. **Start the FastAPI inference backend**:
+   ```bash
+   python server.py
+   ```
+   Backend will run on `http://127.0.0.1:8000`.
+
+2. **Start the React frontend**:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+   Open your browser at `http://127.0.0.1:5173`.
+
+### 4. Alternative: Launch the Streamlit App
+If you prefer running via Streamlit:
 ```bash
 streamlit run app.py
 ```
 Open your browser at `http://localhost:8501`.
 
-### 4. Run the Benchmarks
+### 5. Run the Benchmarks
 To reproduce the empirical evaluation between models:
-
 ```bash
 python benchmark.py
 ```

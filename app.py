@@ -1,4 +1,5 @@
 import os
+import re
 import time
 import pickle
 import numpy as np
@@ -179,6 +180,44 @@ def normalize_text_for_tokenizer(text):
     return " ".join(normalized_words)
 
 
+DANGLING_KEYWORDS = ["WHERE", "AND", "OR", "JOIN", "ON", "FROM", "SET", "HAVING", "GROUP BY", "ORDER BY"]
+
+
+def detect_query_case(query, current_prefix=""):
+    if current_prefix and any(c.isalpha() for c in current_prefix):
+        letters = [c for c in current_prefix if c.isalpha()]
+        if all(c.islower() for c in letters):
+            return "lower"
+        elif all(c.isupper() for c in letters):
+            return "upper"
+
+    tokens = [t.strip(",()=><;") for t in query.split() if t.strip(",()=><;")]
+    if not tokens:
+        return "lower"
+
+    kw_set = {k.upper() for k in SQL_KEYWORDS}
+    upper_kw = sum(1 for t in tokens if t.upper() in kw_set and t.isupper())
+    lower_kw = sum(1 for t in tokens if t.upper() in kw_set and t.islower())
+
+    if upper_kw > lower_kw:
+        return "upper"
+    if lower_kw > upper_kw:
+        return "lower"
+
+    first_letters = [c for c in tokens[0] if c.isalpha()]
+    if first_letters and all(c.isupper() for c in first_letters):
+        return "upper"
+    return "lower"
+
+
+def apply_casing(text, target_case):
+    if target_case == "lower":
+        return text.lower()
+    elif target_case == "upper":
+        return text.upper()
+    return text
+
+
 def get_hybrid_suggestions(
     query_text,
     top_k=3,
@@ -189,12 +228,14 @@ def get_hybrid_suggestions(
 
     query_text = query_text.strip()
 
+    target_case = detect_query_case(query_text_raw)
+
     if not query_text:
         return [
-            ("SELECT", 99.0),
-            ("INSERT INTO", 85.0),
-            ("UPDATE", 80.0),
-            ("DELETE FROM", 75.0)
+            (apply_casing("SELECT", target_case), 99.0),
+            (apply_casing("INSERT INTO", target_case), 85.0),
+            (apply_casing("UPDATE", target_case), 80.0),
+            (apply_casing("DELETE FROM", target_case), 75.0)
         ][:top_k]
 
     has_trailing_space = query_text_raw.endswith(" ")
@@ -369,7 +410,7 @@ def get_hybrid_suggestions(
             ):
 
                 results.append(
-                    (word, score)
+                    (apply_casing(word, target_case), score)
                 )
 
     if len(results) < top_k:
@@ -386,7 +427,7 @@ def get_hybrid_suggestions(
                 ):
 
                     results.append(
-                        (kw, 15.0)
+                        (apply_casing(kw, target_case), 15.0)
                     )
 
                     seen.add(kw_upper)
@@ -730,7 +771,11 @@ with tab2:
                 )
 
             except Exception as ex:
-
-                st.error(
-                    f"Transpilation Error: {ex}"
-                )
+                clean_err = re.sub(r'\x1b\[[0-9;]*m', '', str(ex))
+                tokens = transpile_query_input.strip().split()
+                last_tok = tokens[-1].upper() if tokens else ""
+                
+                st.error(f"Transpilation Error: {clean_err}")
+                
+                if last_tok in DANGLING_KEYWORDS:
+                    st.info(f"💡 **Tip:** Your query ends with an incomplete `{tokens[-1]}` clause. Add a condition or column (e.g. `{tokens[-1]} id = 1`) to complete the query.")
